@@ -63,8 +63,10 @@ The converter **tries to match functions as closely as possible** to the Command
 ---
 
 ## ❤️ Sponsors
-Become a Sponsor: [![Sponsor](https://img.shields.io/badge/Sponsor%20Me-GitHub-red?style=for-the-badge&logo=github)](https://github.com/sponsors/TinyTank800)
-Current Sponsors: ![GitHub Sponsors](https://img.shields.io/github/sponsors/TinyTank800)
+**Become a Sponsor:**  
+[![Sponsor](https://img.shields.io/badge/Sponsor%20Me-GitHub-red?style=for-the-badge&logo=github)](https://github.com/sponsors/TinyTank800)  
+**Current Sponsors:**  
+![GitHub Sponsors](https://img.shields.io/github/sponsors/TinyTank800)  
 
 ---
 
