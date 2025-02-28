@@ -2,6 +2,8 @@ name: Update README and Index Version
 
 on:
   push:
+    branches:
+      - updates
     paths:
       - "version.json"
   workflow_dispatch:
@@ -13,11 +15,11 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout repository
+      - name: Checkout updates branch
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          ref: updates
+          ref: updates  # Staging branch
 
       - name: Read version.json
         id: get_version
@@ -29,7 +31,7 @@ jobs:
       - name: Replace version in index.html
         run: sed -i "s|{{VERSION}}|${{ env.VERSION }}|g" index.html
 
-      - name: Commit and push changes to updates branch
+      - name: Commit version updates to updates branch
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -37,10 +39,40 @@ jobs:
           git commit -m "Update version text to ${{ env.VERSION }}" || echo "No changes to commit"
           git push origin updates
 
+  merge-to-main:
+    needs: update-files  # Ensures version updates FIRST
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main  # Target branch for GitHub Pages
+
       - name: Merge updates into main
         run: |
-          git fetch origin main
-          git checkout main
-          git pull origin main
+          git fetch origin updates
           git merge --no-ff updates -m "Merging updates into main"
           git push origin main
+
+  sync-updates-with-main:
+    needs: merge-to-main  # Ensures updates syncs AFTER main is updated
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout updates branch
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: updates  # Ensuring updates gets latest main changes
+
+      - name: Sync updates branch with main
+        run: |
+          git fetch origin main
+          git merge --no-ff main -m "Sync updates branch with latest main"
+          git push origin updates
