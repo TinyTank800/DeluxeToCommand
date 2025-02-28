@@ -74,6 +74,19 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    document.addEventListener("DOMContentLoaded", function () {
+        function fetchVersion() {
+            fetch("https://raw.githubusercontent.com/TinyTank800/DeluxeToCommand/main/version.json")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("version-number").textContent = `Version: ${data.version}`;
+                })
+                .catch(error => console.error("Error fetching version:", error));
+        }
+    
+        fetchVersion(); // Call the function to fetch and display version
+    });
+
     // Apply theme on page load
     applyStoredTheme();
 
