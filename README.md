@@ -2,7 +2,7 @@
 
 🚀 A simple **web-based tool** that helps you convert **DeluxeMenus YAML** to **CommandPanels YAML** as easily as possible.  
 
-![Version](https://img.shields.io/endpoint?url=https://tinytank800.github.io/DeluxeToCommand/version.json&label=Version)
+![Version](https://img.shields.io/endpoint?url=https://tinytank800.github.io/DeluxeToCommand/version.json&cacheSeconds=60)
 
 ⚠ **This converter is currently in ALPHA** – there are many missing features and potential bugs! Some functions may not fully convert or work as expected. Please report any issues or missing conversions.
 
