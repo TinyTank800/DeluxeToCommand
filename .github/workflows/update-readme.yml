@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          ref: updates  # Staging branch
+          ref: origin/updates  # Staging branch
 
       - name: Read version.json
         id: get_version
@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          ref: main  # Target branch for GitHub Pages
+          ref: origin/main  # Target branch for GitHub Pages
 
       - name: Merge updates into main
         run: |
@@ -69,7 +69,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          ref: updates  # Ensuring updates gets latest main changes
+          ref: origin/updates  # Ensuring updates gets latest main changes
 
       - name: Sync updates branch with main
         run: |
