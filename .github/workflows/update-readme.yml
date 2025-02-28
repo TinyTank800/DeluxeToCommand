@@ -1,5 +1,3 @@
-name: Update README and Index Version
-
 on:
   push:
     branches:
@@ -18,8 +16,14 @@ jobs:
       - name: Checkout updates branch
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ref: origin/updates  # Staging branch
+          fetch-depth: 0
+          ref: updates 
+
+      - name: Debug Git Branches
+        run: |
+          git branch -a
+          git remote -v
+          git fetch --all
 
       - name: Read version.json
         id: get_version
@@ -40,7 +44,7 @@ jobs:
           git push origin updates
 
   merge-to-main:
-    needs: update-files  # Ensures version updates FIRST
+    needs: update-files
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -49,17 +53,25 @@ jobs:
       - name: Checkout main branch
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ref: origin/main  # Target branch for GitHub Pages
+          fetch-depth: 0
+          ref: main
+
+      - name: Fetch all branches
+        run: git fetch --all
+
+      - name: Ensure updates branch exists locally
+        run: |
+          git checkout updates || git checkout -b updates origin/updates
+          git branch --set-upstream-to=origin/updates updates
 
       - name: Merge updates into main
         run: |
-          git fetch origin updates
-          git merge --no-ff updates -m "Merging updates into main"
+          git checkout main
+          git merge --no-ff origin/updates -m "Merging updates into main"
           git push origin main
 
   sync-updates-with-main:
-    needs: merge-to-main  # Ensures updates syncs AFTER main is updated
+    needs: merge-to-main
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -68,8 +80,8 @@ jobs:
       - name: Checkout updates branch
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ref: origin/updates  # Ensuring updates gets latest main changes
+          fetch-depth: 0
+          ref: updates
 
       - name: Sync updates branch with main
         run: |
