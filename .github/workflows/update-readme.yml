@@ -18,7 +18,7 @@ jobs:
         run: echo "VERSION=$(jq -r '.version' version.json)" >> $GITHUB_ENV
 
       - name: Replace version in README.md
-        run: sed -i "s/{{VERSION}}/${{ env.VERSION }}/g" README.md
+        run: sed -i "s|{{VERSION}}|0.0.1-ALPHA(2/28/2025)|g" README.md
 
       - name: Commit and push changes
         run: |
