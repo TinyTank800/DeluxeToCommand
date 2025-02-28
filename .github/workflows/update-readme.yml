@@ -91,5 +91,5 @@ jobs:
       - name: Sync updates branch with main
         run: |
           git fetch origin main
-          git merge --no-ff main -m "Sync updates branch with latest main"
+          git merge --no-ff origin/main -m "Sync updates branch with latest main"
           git push origin updates
