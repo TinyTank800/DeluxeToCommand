@@ -24,6 +24,9 @@
 
     <div class="container">
         <h2>DeluxeMenus ⇄ CommandPanels Converter</h2>
+        <p id="version-number"><img
+            src="https://img.shields.io/endpoint?url=https://tinytank800.github.io/DeluxeToCommand/version.json&label=Version"
+            alt="Version Badge"></p>
         <p><i>ALPHA VERSION! Expect bugs or incomplete conversions!</i></p>
 
         <span class="help-icon" id="help-icon">How to Use</span>
@@ -74,7 +77,29 @@
 
         <hr class="styled-hr">
 
-        <p id="version-number"><img src="https://img.shields.io/endpoint?url=https://tinytank800.github.io/DeluxeToCommand/version.json&label=Version" alt="Version Badge"></p>
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <script>
+            fetch("https://raw.githubusercontent.com/TinyTank800/DeluxeToCommand/main/README.md")
+                .then(response => response.text())
+                .then(data => {
+                    let sponsorsSection = data.match(/<!-- sponsors -->([\s\S]*?)<!-- sponsors -->/);
+                    if (sponsorsSection) {
+                        document.getElementById("sponsor-list").innerHTML = marked.parse(sponsorsSection[1]);
+                    } else {
+                        document.getElementById("sponsor-list").innerHTML = "No sponsors found.";
+                    }
+                })
+                .catch(error => console.error("Error fetching README:", error));
+        </script>
+
+        <!-- This part stays and does not get replaced -->
+        <div id="sponsors">
+            <h2>💖 Our Amazing Sponsors</h2>
+            <div id="sponsor-list">Loading sponsors...</div>
+        </div>
+
+        <hr class="styled-hr">
+
         <p>Created by TinyTank800 | Follow me on:</p>
         <div class="social-links">
             <a href="https://youtube.com/@tinytank800" target="_blank">YouTube</a>
