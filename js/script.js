@@ -1,3 +1,5 @@
+//////////////////// Main Conversion ////////////////////
+
 document.addEventListener("DOMContentLoaded", function () {
     function convertYAML() {
         let inputYAML = document.getElementById("yaml-input").value;
@@ -26,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         material: itemData.material || "STONE",
                         name: itemData.display_name || "&aUnnamed Item",
                         lore: itemData.lore || [],
-                        enchanted: itemData.enchanted ? itemData.enchanted : [],
+                        enchanted: itemData.enchanted || [],
                     };
                 }
             }
@@ -42,6 +44,10 @@ document.addEventListener("DOMContentLoaded", function () {
             alert("Error parsing YAML: " + error);
         }
     }
+
+    //////////////////// Main Conversion ////////////////////
+
+
 
     //////////////////// Themes ////////////////////
 
@@ -92,6 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     //////////////////// Clear button ////////////////////
+
 
 
     //////////////////// Drag and drop upload ////////////////////
