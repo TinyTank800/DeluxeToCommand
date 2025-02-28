@@ -106,3 +106,4 @@ jobs:
           git checkout updates
           git merge --no-ff origin/main -m "Sync updates branch with latest main"
           git push origin updates
+
