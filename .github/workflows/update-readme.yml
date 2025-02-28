@@ -88,8 +88,22 @@ jobs:
           fetch-depth: 0
           ref: updates
 
-      - name: Sync updates branch with main
+      - name: Set up Git identity
         run: |
-          git fetch origin main
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch all branches
+        run: git fetch --all
+
+      - name: Ensure main exists locally
+        run: |
+          git checkout main || git checkout -b main origin/main
+          git branch --set-upstream-to=origin/main main
+
+      - name: Merge main into updates
+        run: |
+          git checkout updates
           git merge --no-ff origin/main -m "Sync updates branch with latest main"
           git push origin updates
+
