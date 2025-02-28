@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DeluxeMenus to CommandPanels Converter</title>
-    <link rel="icon" type="image/png" href="assets/favicon.png"/>
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -26,9 +26,31 @@
         <h2>DeluxeMenus ⇄ CommandPanels Converter</h2>
         <p><i>ALPHA VERSION! Expect bugs or incomplete conversions!</i></p>
 
+        <span class="help-icon" id="help-icon">How to Use</span>
+
+        <!-- Help Section (Initially Hidden) -->
+        <div id="help-section" class="help-container">
+            <p>1️⃣ Upload or paste your DeluxeMenus YAML into the input box.</p>
+            <p>2️⃣ Click <strong>Convert</strong> to process the file.</p>
+            <p>3️⃣ Verify the <strong>converted YAML output</strong>.</p>
+            <p>4️⃣ Click <strong>Copy</strong> to copy the YAML or <strong>Download</strong> to save the file.</p>
+            <p>⚠</p>
+            <p><em>The converter is in ALPHA! Some features may be missing or broken.</em></p>
+        </div>
+
         <hr class="styled-hr">
 
-        <h3>Paste YAML Below</h3>
+        <h3>Upload a YAML File</h3>
+        <div id="drop-area" class="drop-area">
+            <p>Drag & Drop your YAML file here or <label for="file-upload" class="file-label">Browse</label></p>
+            <input type="file" id="file-upload" accept=".yml,.yaml" hidden>
+        </div>
+
+        <div class="input-header">
+            <h3 class="centered-text">Paste YAML Below</h3>
+            <button class="clear-button" id="clear-button">Clear</button>
+        </div>             
+        
         <textarea id="yaml-input" placeholder="Paste your DeluxeMenus YAML here..."></textarea>
 
         <button class="button" id="convert-button">Convert</button>
@@ -45,14 +67,14 @@
 
     <footer>
         <div class="social-links">
-            <h3>Find a bug or issue? Report it on github:</h3>
+            <h3>Find a bug or issue? Report it on Github:</h3>
             <a href="https://github.com/TinyTank800/DeluxeToCommand/issues" target="_blank">Github Issues</a>
         </div>
-        
+
 
         <hr class="styled-hr">
 
-        <p id="version-number"><i>Version: 0.0.1-ALPHA(2/27/2025)</i></p>
+        <p id="version-number"><i>Version: {{VERSION}}</i></p>
         <p>Created by TinyTank800 | Follow me on:</p>
         <div class="social-links">
             <a href="https://youtube.com/@tinytank800" target="_blank">YouTube</a>

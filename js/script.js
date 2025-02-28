@@ -6,36 +6,34 @@ document.addEventListener("DOMContentLoaded", function () {
             let data = jsyaml.load(inputYAML);
             let convertedYAML = { "panels": {} };
 
-            if (data.menus) {
-                for (let menuName in data.menus) {
-                    let menuData = data.menus[menuName];
+            let menuData = data;
 
-                    let panel = {
-                        title: menuData.title || "&8Converted Menu",
-                        rows: Math.ceil(menuData.size / 9) || 1,
-                        perm: "default",
-                        empty: menuData.empty || "STAINED_GLASS_PANE",
-                        items: {}
+            let panel = {
+                title: menuData.title || "&8Converted Menu",
+                rows: Math.ceil(menuData.size / 9) || 1,
+                perm: "default",
+                empty: menuData.empty || "STAINED_GLASS_PANE",
+                items: {}
+            };
+
+            if (menuData.items) {
+                for (let itemKey in menuData.items) {
+                    let itemData = menuData.items[itemKey];
+                    if (!("slot" in itemData)) continue;
+
+                    let slot = String(itemData.slot);
+                    panel.items[slot] = {
+                        material: itemData.material || "STONE",
+                        name: itemData.display_name || "&aUnnamed Item",
+                        lore: itemData.lore || [],
+                        enchanted: itemData.enchanted ? itemData.enchanted : [],
                     };
-
-                    if (menuData.items) {
-                        for (let itemKey in menuData.items) {
-                            let itemData = menuData.items[itemKey];
-                            if (!("slot" in itemData)) continue;
-
-                            let slot = String(itemData.slot);
-                            panel.items[slot] = {
-                                material: itemData.material || "STONE",
-                                name: itemData.display_name || "&aUnnamed Item",
-                                lore: itemData.lore || [],
-                                enchanted: itemData.enchanted ? itemData.enchanted : [],
-                            };
-                        }
-                    }
-
-                    convertedYAML.panels[menuName] = panel;
                 }
             }
+
+            convertedYAML.panels["ConvertedPanel"] = panel;
+
+
 
             let outputText = jsyaml.dump(convertedYAML, { noRefs: true, indent: 2 });
             document.getElementById("output-box").innerText = outputText;
@@ -45,39 +43,95 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    //////////////////// Themes ////////////////////
+
     function toggleTheme() {
         let currentTheme = document.body.getAttribute("data-theme");
         let newTheme = currentTheme === "dark" ? "light" : "dark";
 
-        // Apply new theme
         document.body.setAttribute("data-theme", newTheme);
         localStorage.setItem("theme", newTheme);
-
-        // Update toggle button styling
-        updateToggleUI(newTheme);
     }
 
     function applyStoredTheme() {
-        let savedTheme = localStorage.getItem("theme") || "dark"; // Default to dark mode
+        let savedTheme = localStorage.getItem("theme") || "dark";
         document.body.setAttribute("data-theme", savedTheme);
-
-        // Update the toggle switch UI on load
-        updateToggleUI(savedTheme);
     }
 
-    function updateToggleUI(theme) {
-        let toggleSwitch = document.getElementById("theme-toggle");
-        if (theme === "light") {
-            toggleSwitch.classList.add("light-mode");
-        } else {
-            toggleSwitch.classList.remove("light-mode");
-        }
-    }
-
-    // Apply theme on page load
     applyStoredTheme();
 
     // Attach event listeners
     document.getElementById("convert-button").addEventListener("click", convertYAML);
     document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
+
+    //////////////////// Themes ////////////////////
+
+
+
+    //////////////////// Help Tooltip ////////////////////
+
+    // Get references to elements
+    const helpIcon = document.getElementById("help-icon");
+    const helpSection = document.getElementById("help-section");
+
+    // Toggle Help Section on Click
+    helpIcon.addEventListener("click", function () {
+        helpSection.classList.toggle("open");
+    });
+
+    //////////////////// Help Tooltip ////////////////////
+
+
+
+    //////////////////// Clear button ////////////////////
+
+    document.getElementById("clear-button").addEventListener("click", () => {
+        document.getElementById("yaml-input").value = "";
+        document.getElementById("output-box").innerText = "";
+        document.getElementById("output-container").style.display = "none";
+    });
+
+    //////////////////// Clear button ////////////////////
+
+
+    //////////////////// Drag and drop upload ////////////////////
+
+    const dropArea = document.getElementById("drop-area");
+    const fileInput = document.getElementById("file-upload");
+
+    dropArea.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        dropArea.style.background = "rgba(255, 255, 255, 0.1)";
+    });
+
+    dropArea.addEventListener("dragleave", () => {
+        dropArea.style.background = "transparent";
+    });
+
+    dropArea.addEventListener("drop", (event) => {
+        event.preventDefault();
+        dropArea.style.background = "transparent";
+
+        let file = event.dataTransfer.files[0];
+        handleFileUpload(file);
+    });
+
+    fileInput.addEventListener("change", () => {
+        let file = fileInput.files[0];
+        handleFileUpload(file);
+    });
+
+    function handleFileUpload(file) {
+        if (file && file.name.endsWith(".yml") || file.name.endsWith(".yaml") || file.name.endsWith(".txt")) {
+            let reader = new FileReader();
+            reader.onload = function (event) {
+                document.getElementById("yaml-input").value = event.target.result;
+            };
+            reader.readAsText(file);
+        } else {
+            alert("Please upload a valid YAML file.");
+        }
+    }
+
+    //////////////////// Drag and drop upload ////////////////////
 });

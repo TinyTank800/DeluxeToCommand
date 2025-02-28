@@ -93,7 +93,7 @@ body {
     background: var(--container-bg);
     padding: 20px;
     border-radius: 12px;
-    max-width: 600px;
+    max-width: 800px;
     width: 90%;
     text-align: center;
 }
@@ -117,6 +117,8 @@ textarea {
     padding: 10px;
     resize: none;
     font-size: 14px;
+    margin: 0 auto;
+    display: block;
 }
 
 /* Buttons */
@@ -134,7 +136,7 @@ textarea {
 
 .button:hover {
     background: var(--button-hover);
-    transform: scale(1.05);
+    transform: scale(1.02);
 }
 
 /* Output Box */
@@ -153,11 +155,17 @@ textarea {
     margin: 0 auto;
 }
 
+/* Body spacing */
+body {
+    padding: 30px 0;
+}
+
 /* Footer */
 footer {
-    margin-top: 30px;
-    font-size: 14px;
-    color: var(--footer-text);
+    margin-top: 40px;
+    padding: 15px;
+    text-align: center;
+    border-radius: 10px;
 }
 
 .social-links a {
@@ -171,4 +179,107 @@ footer {
 .social-links a:hover {
     text-decoration: underline;
     color: var(--button-hover);
+}
+
+/* Help Button */
+.help-icon {
+    display: block;
+    width: fit-content;
+    padding: 8px 12px;
+    margin: 10px auto;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--button-bg);
+    cursor: pointer;
+    border: 1px solid var(--button-bg);
+    border-radius: 6px;
+    text-align: center;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.help-icon:hover {
+    background: var(--button-bg);
+    color: white;
+}
+
+/* Help Section (Initially Hidden) */
+.help-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+    background: var(--container-bg);
+    color: var(--text-color);
+    padding: 0 15px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    margin-top: 10px;
+}
+
+/* Open State */
+.help-container.open {
+    max-height: 300px;
+    padding: 15px;
+}
+
+/* Drag and Drop File Upload */
+.drop-area {
+    border: 2px dashed var(--border-color);
+    padding: 10px;
+    width: 90%;
+    border-radius: 8px;
+    text-align: center;
+    color: var(--text-color);
+    margin: 0 auto 10px;
+    cursor: pointer;
+    transition: background 0.3s ease, border 0.3s ease;
+}
+
+/* Hover Effect to Indicate Interaction */
+.drop-area:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--button-bg);
+}
+
+/* Style the Browse button */
+.file-label {
+    font-weight: bold;
+    color: var(--button-bg);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* Input Header: Center Title & Keep Clear Button on Right */
+.input-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    padding: 10px 0;
+}
+
+/* Center the H3 Heading */
+.centered-text {
+    flex-grow: 1;
+    text-align: center;
+    margin: 0;
+}
+
+/* Small Clear Button, Locked to Right */
+.clear-button {
+    position: absolute;
+    right: 20px;
+    background: var(--button-bg);
+    color: white;
+    border: none;
+    padding: 5px 12px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.clear-button:hover {
+    background: var(--button-hover);
+    transform: scale(1.05);
 }
