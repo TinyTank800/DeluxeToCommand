@@ -1,6 +1,7 @@
 # 🛠️ DeluxeMenus to CommandPanels Converter
 
 🚀 A simple **web-based tool** that helps you convert **DeluxeMenus YAML** to **CommandPanels YAML** as easily as possible.  
+
 *Version: 0.0.1-ALPHA(2/27/25)*
 
 ⚠ **This converter is currently in ALPHA** – there are many missing features and potential bugs! Some functions may not fully convert or work as expected. Please report any issues or missing conversions.
@@ -55,9 +56,9 @@ The converter **tries to match functions as closely as possible** to the Command
 ---
 
 ## 📢 Feedback & Support
-*Found a bug or missing feature?* Let us know!
-🐙 **GitHub Issues**: [Main Repo](https://github.com/TinyTank800/DeluxeToCommand/issues)
-💬 **Discord**: [Join RoH Community](https://discord.gg/eUWBWh7)
+*Found a bug or missing feature?* Let us know!  
+🐙 **GitHub Issues**: [Main Repo](https://github.com/TinyTank800/DeluxeToCommand/issues)  
+💬 **Discord**: [Join RoH Community](https://discord.gg/eUWBWh7)  
 
 ---
 
