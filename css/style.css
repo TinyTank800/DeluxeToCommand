@@ -1,0 +1,174 @@
+/* Default Dark Theme */
+:root {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --container-bg: #1e1e1e;
+    --button-bg: #ff9800;
+    --button-hover: #e68900;
+    --border-color: #444;
+    --logo-brightness: 80%;
+    --footer-text: #bbb;
+}
+
+/* Toggle Switch */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.toggle-label {
+    font-size: 14px;
+}
+
+.toggle-switch {
+    width: 40px;
+    height: 20px;
+    background: var(--button-bg);
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.toggle-switch::before {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 14px;
+    height: 14px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+/* Light Mode Styling */
+[data-theme="light"] {
+    --bg-color: #ffffff;
+    --text-color: #222222;
+    --container-bg: #f4f4f4;
+    --button-bg: #0078d4;
+    --button-hover: #005fa3;
+    --border-color: #ccc;
+    --logo-brightness: 100%;
+    --footer-text: #555;
+}
+
+/* Toggle Button Moves Right in Light Mode */
+[data-theme="light"] .toggle-switch {
+    background: var(--button-hover);
+}
+
+[data-theme="light"] .toggle-switch::before {
+    transform: translateX(20px);
+}
+
+/* Page Styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Logo */
+.logo {
+    width: 120px;
+    margin-bottom: 20px;
+    filter: brightness(var(--logo-brightness));
+    transition: filter 0.3s ease;
+}
+
+/* Container */
+.container {
+    background: var(--container-bg);
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 90%;
+    text-align: center;
+}
+
+/* Page Breaks */
+.styled-hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #555, transparent);
+    margin: 20px 0;
+}
+
+/* Paste Input Box */
+textarea {
+    width: 90%;
+    height: 150px;
+    background: var(--container-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    resize: none;
+    font-size: 14px;
+}
+
+/* Buttons */
+.button {
+    background: var(--button-bg);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    margin-top: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+}
+
+.button:hover {
+    background: var(--button-hover);
+    transform: scale(1.05);
+}
+
+/* Output Box */
+.output-box {
+    width: 90%;
+    height: 150px;
+    background: var(--container-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    font-size: 14px;
+    text-align: left;
+    margin: 0 auto;
+}
+
+/* Footer */
+footer {
+    margin-top: 30px;
+    font-size: 14px;
+    color: var(--footer-text);
+}
+
+.social-links a {
+    color: var(--button-bg);
+    margin: 0 10px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s ease;
+}
+
+.social-links a:hover {
+    text-decoration: underline;
+    color: var(--button-hover);
+}

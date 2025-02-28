@@ -1,0 +1,46 @@
+menus:
+  example_menu:
+    menu_title: example&aGUI menu
+    open_command: example
+    priority: 1
+    size: 9
+    items:
+      '1':
+        material: head;%player_name%
+        slot: 0
+        display_name: '&aHey &f%player%'
+        lore:
+        - '&aYou opened a GUI menu'
+        - '&aThis menu is just for you!'
+        left_click_commands:
+        - '[close]'
+        right_click_commands:
+        - '[player] help'
+        - '[close]'
+      '2':
+        material: DIRT
+        data: 0
+        amount: 1
+        slot: 1
+        priority: 1
+        permission: exampleguimenu.item.home
+        display_name: '&bTeleport home'
+        lore:
+        - '&bClick to teleport'
+        - '&bto your home'
+        click_commands:
+        - '[player] home'
+        - '[close]'
+      '3':
+        material: DIRT
+        data: 0
+        amount: 1
+        slot: 1
+        priority: 2
+        display_name: '&bTeleport to spawn'
+        lore:
+        - '&bClick to teleport'
+        - '&bto the server spawn'
+        click_commands:
+        - '[player] spawn'
+        - '[close]'

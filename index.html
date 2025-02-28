@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeluxeMenus to CommandPanels Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body data-theme="dark">
+
+    <!-- Logo -->
+    <img src="assets/favicon.png" alt="Logo" class="logo">
+
+    <!-- Theme Toggle -->
+    <div class="toggle-container">
+        <span class="toggle-label">Dark Mode</span>
+        <div class="toggle-switch" id="theme-toggle"></div>
+        <span class="toggle-label">Light Mode</span>
+    </div>
+
+    <div class="container">
+        <h2>DeluxeMenus ⇄ CommandPanels Converter</h2>
+        <p><i>ALPHA VERSION! Expect bugs or incomplete conversions!</i></p>
+
+        <hr class="styled-hr">
+
+        <h3>Paste YAML Below</h3>
+        <textarea id="yaml-input" placeholder="Paste your DeluxeMenus YAML here..."></textarea>
+
+        <button class="button" id="convert-button">Convert</button>
+
+        <div class="output-container" id="output-container" style="display: none;">
+            <hr class="styled-hr">
+
+            <h3>Converted YAML</h3>
+            <div class="output-box" id="output-box"></div>
+            <button class="button" id="copy-button">Copy</button>
+            <button class="button" id="download-button">Download</button>
+        </div>
+    </div>
+
+    <footer>
+        <p><i>Version: 0.0.1-ALPHA(2/27/2025)</i></p>
+        <p>Created by TinyTank800 | Follow me on:</p>
+        <div class="social-links">
+            <a href="https://youtube.com/@tinytank800" target="_blank">YouTube</a>
+            <a href="https://discord.jemsire.com" target="_blank">Discord</a>
+            <a href="https://github.com/TinyTank800" target="_blank">GitHub</a>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+
+</html>

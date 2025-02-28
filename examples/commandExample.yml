@@ -1,0 +1,23 @@
+panels:
+  example_menu:
+    title: '&8Command Example'
+    rows: 1
+    perm: default
+    empty: STAINED_GLASS_PANE
+    items:
+      '0':
+        material: cps= self
+        name: '&aHey &f%player%'
+        lore:
+          - '&aYou opened a GUI menu'
+          - '&aThis menu is just for you!'
+        commands:
+        - cpc
+      '1':
+        material: DIRT
+        name: '&bTeleport to spawn'
+        lore:
+          - '&bClick to teleport'
+          - '&bto the server spawn'
+        commands:
+        - spawn
