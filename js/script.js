@@ -74,18 +74,25 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-        function fetchVersion() {
-            fetch("https://raw.githubusercontent.com/TinyTank800/DeluxeToCommand/main/version.json")
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("version-number").textContent = `Version: ${data.version}`;
-                })
-                .catch(error => console.error("Error fetching version:", error));
-        }
+    function fetchVersion() {
+        fetch("https://raw.githubusercontent.com/TinyTank800/DeluxeToCommand/main/version.json")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch version.json");
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById("version-number").textContent = `Version: ${data.version}`;
+            })
+            .catch(error => {
+                console.error("Error fetching version:", error);
+                document.getElementById("version-number").textContent = "Version: Error";
+            });
+    }
     
-        fetchVersion(); // Call the function to fetch and display version
-    });
+    // Run the function when the page loads
+    document.addEventListener("DOMContentLoaded", fetchVersion);
 
     // Apply theme on page load
     applyStoredTheme();
