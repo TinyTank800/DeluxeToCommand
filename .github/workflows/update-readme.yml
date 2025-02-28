@@ -1,0 +1,28 @@
+name: Update README Version
+
+on:
+  push:
+    paths:
+      - "version.json"  # Runs when version.json is updated
+  workflow_dispatch:    # Allows manual execution
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Read version.json
+        id: get_version
+        run: echo "VERSION=$(jq -r '.version' version.json)" >> $GITHUB_ENV
+
+      - name: Replace version in README.md
+        run: sed -i "s/{{VERSION}}/${{ env.VERSION }}/g" README.md
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions@users.noreply.github.com"
+          git commit -am "Update README version to ${{ env.VERSION }}" || echo "No changes to commit"
+          git push
