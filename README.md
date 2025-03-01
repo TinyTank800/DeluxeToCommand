@@ -67,11 +67,7 @@ The converter **tries to match functions as closely as possible** to the Command
 [![Sponsor](https://img.shields.io/badge/Sponsor%20Me-GitHub-red?style=for-the-badge&logo=github)](https://github.com/sponsors/TinyTank800)  
 **Current Sponsors:**  
 ![GitHub Sponsors](https://img.shields.io/github/sponsors/TinyTank800)  
-<!-- sponsors -->
-<a href="https://github.com/TinyTank800" target="_blank">
-    <img src="https://github.com/TinyTank800.png" width="50" height="50">
-</a>
-<!-- sponsors -->
+<!-- sponsors --><!-- sponsors -->
 
 ---
 
