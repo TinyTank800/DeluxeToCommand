@@ -287,8 +287,8 @@ footer {
 /* Requirement Warnings */
 .requirement-warning {
     width: 90%;
-    padding: 15px;
-    margin-top: 20px;
+    padding: 10px;
+    margin: 0 auto 10px;
     background: rgba(255, 165, 0, 0.2);
     border: 2px solid orange;
     border-radius: 8px;

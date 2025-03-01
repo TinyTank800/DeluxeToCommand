@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // Loop through all slots in items
             for (let slot in items) {
-                let priorities = Object.keys(items[slot]).map(Number).sort((a, b) => a - b);
+                let priorities = Object.keys(items[slot]).map(Number).sort((a, b) => b - a);
 
                 priorities.forEach((priority, index) => {
                     if (index === 0) {
