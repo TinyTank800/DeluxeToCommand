@@ -4,7 +4,7 @@
 
 ![Version](https://img.shields.io/endpoint?url=https://tinytank800.github.io/DeluxeToCommand/version.json&cacheSeconds=60)
 
-⚠ **This converter is currently in ALPHA** – there are many missing features and potential bugs! Some functions may not fully convert or work as expected. Please report any issues or missing conversions.
+⚠ **This converter is currently in BETA** – there are many missing features and potential bugs! Some functions may not fully convert or work as expected. Please report any issues or missing conversions.
 
 ---
 
