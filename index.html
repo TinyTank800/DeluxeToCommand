@@ -25,9 +25,9 @@
     <div class="container">
         <h2>DeluxeMenus ⇄ CommandPanels Converter</h2>
         <p id="version-number"><img
-            src="https://img.shields.io/endpoint?url=https://tinytank800.github.io/DeluxeToCommand/version.json&label=Version"
-            alt="Version Badge"></p>
-        <p><i>ALPHA VERSION! Expect bugs or incomplete conversions!</i></p>
+                src="https://img.shields.io/endpoint?url=https://tinytank800.github.io/DeluxeToCommand/version.json&label=Version"
+                alt="Version Badge"></p>
+        <p><i>BETA VERSION! Expect bugs or incomplete conversions!</i></p>
 
         <span class="help-icon" id="help-icon">How to Use</span>
 
@@ -38,7 +38,7 @@
             <p>3️⃣ Verify the <strong>converted YAML output</strong>.</p>
             <p>4️⃣ Click <strong>Copy</strong> to copy the YAML or <strong>Download</strong> to save the file.</p>
             <p>⚠</p>
-            <p><em>The converter is in ALPHA! Some features may be missing or broken.</em></p>
+            <p><em>The converter is in BETA! Some features may be missing or broken.</em></p>
         </div>
 
         <hr class="styled-hr">
@@ -63,6 +63,18 @@
 
             <h3>Converted YAML</h3>
             <div class="output-box" id="output-box"></div>
+            <!-- Requirement Info Box (Hidden by Default) -->
+            <div id="requirement-warning" class="requirement-warning" style="display: none;">
+                <h3>⚠ Manual Configuration Needed ⚠</h3>
+                <p>
+                    Requirements were found in this panel. The converter has provided basic formatting, but manual
+                    configuration of the has sections will be required to match your needs.<br>
+                    Has sections: <a
+                        href="https://commandpanels.net/wiki?groupIndex=3&index=1&version=Wiki_3.0">Wiki</a>
+                </p>
+                <ul id="requirement-list"></ul>
+            </div>
+
             <button class="button" id="copy-button">Copy</button>
             <button class="button" id="download-button">Download</button>
         </div>
@@ -78,21 +90,9 @@
         <hr class="styled-hr">
 
         <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-        <script>
-            fetch("https://raw.githubusercontent.com/TinyTank800/DeluxeToCommand/main/README.md")
-                .then(response => response.text())
-                .then(data => {
-                    let sponsorsSection = data.match(/<!-- sponsors -->([\s\S]*?)<!-- sponsors -->/);
-                    if (sponsorsSection) {
-                        document.getElementById("sponsor-list").innerHTML = marked.parse(sponsorsSection[1]);
-                    } else {
-                        document.getElementById("sponsor-list").innerHTML = "No sponsors found.";
-                    }
-                })
-                .catch(error => console.error("Error fetching README:", error));
-        </script>
+        <!-- Load the external sponsors script -->
+        <script src="js/sponsors.js"></script>
 
-        <!-- This part stays and does not get replaced -->
         <div id="sponsors">
             <h2>💖 Our Amazing Sponsors</h2>
             <div id="sponsor-list">Loading sponsors...</div>

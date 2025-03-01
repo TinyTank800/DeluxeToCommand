@@ -6,8 +6,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
             let data = jsyaml.load(inputYAML);
+            let tempData = data;
             let convertedYAML = { "panels": {} };
-
 
             // Panel Settings //
             let panel = {
@@ -18,73 +18,112 @@ document.addEventListener("DOMContentLoaded", function () {
                 items: {}
             };
 
-            if (data.open_command) panel.commands = data.open_command;
+            if (data.open_command) {
+                panel.commands = Array.isArray(data.open_command) ? data.open_command : [data.open_command];
+            }
             if (data.open_commands) {
-                data.open_commands = data.open_commands.map(command => {
-                    return command
-                        .replace("[player]", "")
-                        .replace("[console]", "console=")
-                        .replace("[commandevent]", "sudo=")
-                        .replace("[message]", "msg=")
-                        .replace("[broadcast]", "broadcast=")
-                        .replace("[openguimenu]", "open=")
-                        .replace("[connect]", "server=")
-                        .replace("[close]", "cpc")
-                        .replace("[refresh]", "refresh")
-                        .replace("[sound]", "sound=")
-                        .replace("[takemoney]", "paywall=")
-                        .replace("[takeexp]", "xp-paywall=")
-                        .replace("[chat]", "send=");
-                });
-
-                panel["commands-on-open"] = data.open_commands;
+                panel["commands-on-open"] = checkTags(data.open_commands);
             }
             if (data.close_commands) {
-                data.close_commands = data.close_commands.map(command => {
-                    return command
-                        .replace("[player]", "")
-                        .replace("[console]", "console=")
-                        .replace("[commandevent]", "sudo=")
-                        .replace("[message]", "msg=")
-                        .replace("[broadcast]", "broadcast=")
-                        .replace("[openguimenu]", "open=")
-                        .replace("[connect]", "server=")
-                        .replace("[close]", "cpc")
-                        .replace("[refresh]", "refresh")
-                        .replace("[sound]", "sound=")
-                        .replace("[takemoney]", "paywall=")
-                        .replace("[takeexp]", "xp-paywall=")
-                        .replace("[chat]", "send=");
-                });
-            
-                panel["commands-on-close"] = data.close_commands;
+                panel["commands-on-close"] = checkTags(data.close_commands);
             }
             if (data.update_interval) panel["refresh-delay"] = data.update_interval * 20;
 
-            
             // Panel Settings //
 
+            let allRequirementDetails = [];
+
+            let items = {}
+
             // Item Settings //
-            if (data.items) {
-                for (let itemKey in data.items) {
-                    let itemData = data.items[itemKey];
+            if (tempData.items) {
+                for (let itemKey in tempData.items) {
+                    let itemData = tempData.items[itemKey];
                     if (!("slot" in itemData)) continue;
 
                     let slot = itemData.slot;
-                    panel.items[slot] = {
+                    let priority = itemData.priority || 0;
+
+                    if (!items[slot]) {
+                        items[slot] = {}
+                    }
+
+                    items[slot][priority] = {
                         material: itemData.material || "STONE",
                         stack: itemData.amount || itemData.dynamic_amount || 1,
                     };
 
-                    if(itemData.display_name) panel.items[slot].name = itemData.display_name;
-                    if(itemData.lore) panel.items[slot].lore = itemData.lore;
-                    if(itemData.enchantments) panel.items[slot].enchanted = itemData.enchantments;
-                    if(itemData.model_data) panel.items[slot].customdata = itemData.model_data;
+                    if (itemData.display_name) items[slot][priority].name = itemData.display_name;
+                    if (itemData.lore) items[slot][priority].lore = itemData.lore;
+                    if (itemData.enchantments) items[slot][priority].enchanted = itemData.enchantments;
+                    if (itemData.model_data) items[slot][priority].customdata = itemData.model_data;
+                    if (itemData.click_commands) {
+                        items[slot][priority].commands = checkTags(itemData.click_commands);
+                    }
+
+                    if (itemData.view_requirement) {
+                        items[slot][priority].view_requirements = itemData.view_requirement.requirements;
+                    }
+                    if (itemData.click_requirement) {
+                        items[slot][priority].click_requirements = itemData.click_requirement.requirements;
+                    }
                 }
             }
-            // Item Settings //
+
+            // Loop through all slots in items
+            for (let slot in items) {
+                let priorities = Object.keys(items[slot]).map(Number).sort((a, b) => a - b);
+
+                priorities.forEach((priority, index) => {
+                    if (index === 0) {
+                        // First priority should be the main item
+                        panel.items[slot] = {
+                            material: items[slot][priority].material || "STONE",
+                            stack: items[slot][priority].stack || 1,
+                        };
+
+                        if (items[slot][priority].name) panel.items[slot].name = items[slot][priority].name;
+                        if (items[slot][priority].lore) panel.items[slot].lore = items[slot][priority].lore;
+                        if (items[slot][priority].enchanted) panel.items[slot].enchanted = items[slot][priority].enchanted;
+                        if (items[slot][priority].customdata) panel.items[slot].customdata = items[slot][priority].customdata;
+                        if (items[slot][priority].commands) panel.items[slot].commands = items[slot][priority].commands;
+                    } else {
+                        // Higher priorities go into hasX
+                        let hasIndex = index - 1; // First "has0", then "has1", etc.
+                        panel.items[slot][`has${hasIndex}`] = {
+                            material: items[slot][priority].material || "STONE",
+                            stack: items[slot][priority].stack || 1,
+                        };
+
+                        if (items[slot][priority].name) panel.items[slot][`has${hasIndex}`].name = items[slot][priority].name;
+                        if (items[slot][priority].lore) panel.items[slot][`has${hasIndex}`].lore = items[slot][priority].lore;
+                        if (items[slot][priority].enchanted) panel.items[slot][`has${hasIndex}`].enchanted = items[slot][priority].enchanted;
+                        if (items[slot][priority].customdata) panel.items[slot][`has${hasIndex}`].customdata = items[slot][priority].customdata;
+                        if (items[slot][priority].commands) panel.items[slot][`has${hasIndex}`].commands = items[slot][priority].commands;
+
+                        // **Fixing Requirements Merging**
+                        let mergedRequirements = [];
+
+                        if (items[slot][priority].view_requirements) {
+                            mergedRequirements = mergedRequirements.concat(items[slot][priority].view_requirements);
+                        }
+                        if (items[slot][priority].click_requirements) {
+                            mergedRequirements = mergedRequirements.concat(items[slot][priority].click_requirements);
+                        }
+
+                        // If there are any requirements, process them
+                        if (mergedRequirements.length > 0) {
+                            convertRequirements(mergedRequirements, panel, slot, `has${hasIndex}`, allRequirementDetails);
+                        }
+                    }
+                });
+            }
 
             convertedYAML.panels["ConvertedPanel"] = panel;
+
+            if (allRequirementDetails.length > 0) {
+                showRequirementWarning(allRequirementDetails);
+            }
 
             let outputText = jsyaml.dump(convertedYAML, { noRefs: true, indent: 2 });
             document.getElementById("output-box").innerText = outputText;
@@ -94,7 +133,109 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+
     //////////////////// Main Conversion ////////////////////
+
+
+
+    //////////////////// Requirement Conversion ////////////////////
+
+    function convertRequirements(requirements, panel, slot, hasSection, allRequirementDetails) {
+        console.log("Starting requirement conversion.")
+
+        requirements.forEach(requirement => {
+            var firstRequirement = Object.values(requirement)[0] //Have to use this as name of requirement is first then the type details.
+
+            if (!firstRequirement || !firstRequirement.type) return;
+
+            let condition = {};
+
+            if (firstRequirement.type.includes("has permission")) {
+                let permission = firstRequirement.permission;
+                let not = firstRequirement.type.includes("!");
+                condition.value0 = not ? 'NOT %cp-player-name% HASPERM' : '%cp-player-name% HASPERM';
+                condition.compare0 = permission;
+                allRequirementDetails.push(`Slot ${slot}: Requires permission '${permission}'`);
+            }
+            if (firstRequirement.type.includes("has money")) {
+                let amount = firstRequirement.amount;
+                let not = firstRequirement.type.includes("!");
+                condition.value0 = not ? 'NOT %cp-player-balance% ISGREATER' : '%cp-player-balance% ISGREATER';
+                condition.compare0 = amount;
+                allRequirementDetails.push(`Slot ${slot}: Requires at least $${amount}`);
+            }
+            if (firstRequirement.type.includes("string equals")) {
+                let input = firstRequirement.input;
+                let output = firstRequirement.output;
+                let not = firstRequirement.type.includes("!");
+                condition.value0 = not ? "NOT " + input : input;
+                condition.compare0 = output;
+                allRequirementDetails.push(`Slot ${slot}: Requires '${input}' to equal '${output}'`);
+            }
+
+            panel.items[slot][hasSection].value0 = condition.value0;
+            panel.items[slot][hasSection].compare0 = condition.compare0;
+
+            // Debugging Output
+            console.log(`Assigning ${hasSection} to slot ${slot}:`, condition);
+        });
+    }
+
+    //////////////////// Requirement Conversion ////////////////////
+
+
+
+    //////////////////// Show Warning ////////////////////
+
+    function showRequirementWarning(requirementDetails) {
+        let warningBox = document.getElementById("requirement-warning");
+        let requirementList = document.getElementById("requirement-list");
+
+        // Clear previous messages
+        requirementList.innerHTML = "";
+
+        // Add each requirement as a list item
+        requirementDetails.forEach(detail => {
+            let listItem = document.createElement("li");
+            listItem.textContent = detail;
+            requirementList.appendChild(listItem);
+        });
+
+        // Make the warning box visible
+        warningBox.style.display = "block";
+    }
+
+    //////////////////// Show Warning ////////////////////
+
+
+
+    //////////////////// Tag Conversion ////////////////////
+
+    function checkTags(commands) {
+        var newCommands = commands.map(command => {
+            return command
+                //command tags
+                .replace("[player]", "")
+                .replace("[console]", "console=")
+                .replace("[commandevent]", "sudo=")
+                .replace("[message]", "msg=")
+                .replace("[broadcast]", "broadcast=")
+                .replace("[openguimenu]", "open=")
+                .replace("[connect]", "server=")
+                .replace("[close]", "cpc")
+                .replace("[refresh]", "refresh")
+                .replace("[sound]", "sound=")
+                .replace("[takemoney]", "paywall=")
+                .replace("[takeexp]", "xp-paywall=")
+                .replace("[chat]", "send=")
+                //Placeholders
+                .replace("%player_name%", "%cp-player-name%");
+        });
+
+        return newCommands;
+    }
+
+    //////////////////// Tag Conversion ////////////////////
 
 
 
@@ -191,3 +332,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
     //////////////////// Drag and drop upload ////////////////////
 });
+
+
+
+//////////////////// Copy Button ////////////////////
+
+document.getElementById("copy-button").addEventListener("click", function () {
+    let outputBox = document.getElementById("output-box");
+
+    if (!outputBox) {
+        alert("Output box not found!");
+        return;
+    }
+
+    let textToCopy = outputBox.innerText; // Use innerText to preserve formatting
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        alert("Copied to clipboard!");
+    }).catch(err => {
+        console.error("Failed to copy text:", err);
+        alert("Copy failed. Please try again.");
+    });
+});
+
+//////////////////// Copy Button ////////////////////

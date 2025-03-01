@@ -283,3 +283,37 @@ footer {
     background: var(--button-hover);
     transform: scale(1.05);
 }
+
+/* Requirement Warnings */
+.requirement-warning {
+    width: 90%;
+    padding: 15px;
+    margin-top: 20px;
+    background: rgba(255, 165, 0, 0.2);
+    border: 2px solid orange;
+    border-radius: 8px;
+    color: #ff9800;
+    text-align: left;
+}
+
+.requirement-warning h3 {
+    margin-top: 0;
+    color: #d67c00;
+}
+
+.requirement-warning ul {
+    padding-left: 20px;
+}
+
+.requirement-warning a {
+    color: var(--button-bg); /* Match footer link color */
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease-in-out;
+}
+
+.requirement-warning a:hover {
+    text-decoration: underline;
+    color: var(--button-hover); /* Match footer hover effect */
+}
+
