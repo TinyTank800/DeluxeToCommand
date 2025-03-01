@@ -8,34 +8,83 @@ document.addEventListener("DOMContentLoaded", function () {
             let data = jsyaml.load(inputYAML);
             let convertedYAML = { "panels": {} };
 
-            let menuData = data;
 
+            // Panel Settings //
             let panel = {
-                title: menuData.title || "&8Converted Menu",
-                rows: Math.ceil(menuData.size / 9) || 1,
+                title: data.menu_title || "&8Converted Menu",
+                rows: Math.ceil(data.size / 9) || 1,
                 perm: "default",
-                empty: menuData.empty || "STAINED_GLASS_PANE",
+                empty: data.empty || "BLACK_STAINED_GLASS_PANE",
                 items: {}
             };
 
-            if (menuData.items) {
-                for (let itemKey in menuData.items) {
-                    let itemData = menuData.items[itemKey];
+            if (data.open_command) panel.commands = data.open_command;
+            if (data.open_commands) {
+                data.open_commands = data.open_commands.map(command => {
+                    return command
+                        .replace("[player]", "")
+                        .replace("[console]", "console=")
+                        .replace("[commandevent]", "sudo=")
+                        .replace("[message]", "msg=")
+                        .replace("[broadcast]", "broadcast=")
+                        .replace("[openguimenu]", "open=")
+                        .replace("[connect]", "server=")
+                        .replace("[close]", "cpc")
+                        .replace("[refresh]", "refresh")
+                        .replace("[sound]", "sound=")
+                        .replace("[takemoney]", "paywall=")
+                        .replace("[takeexp]", "xp-paywall=")
+                        .replace("[chat]", "send=");
+                });
+
+                panel["commands-on-open"] = data.open_commands;
+            }
+            if (data.close_commands) {
+                data.close_commands = data.close_commands.map(command => {
+                    return command
+                        .replace("[player]", "")
+                        .replace("[console]", "console=")
+                        .replace("[commandevent]", "sudo=")
+                        .replace("[message]", "msg=")
+                        .replace("[broadcast]", "broadcast=")
+                        .replace("[openguimenu]", "open=")
+                        .replace("[connect]", "server=")
+                        .replace("[close]", "cpc")
+                        .replace("[refresh]", "refresh")
+                        .replace("[sound]", "sound=")
+                        .replace("[takemoney]", "paywall=")
+                        .replace("[takeexp]", "xp-paywall=")
+                        .replace("[chat]", "send=");
+                });
+            
+                panel["commands-on-close"] = data.close_commands;
+            }
+            if (data.update_interval) panel["refresh-delay"] = data.update_interval * 20;
+
+            
+            // Panel Settings //
+
+            // Item Settings //
+            if (data.items) {
+                for (let itemKey in data.items) {
+                    let itemData = data.items[itemKey];
                     if (!("slot" in itemData)) continue;
 
-                    let slot = String(itemData.slot);
+                    let slot = itemData.slot;
                     panel.items[slot] = {
                         material: itemData.material || "STONE",
-                        name: itemData.display_name || "&aUnnamed Item",
-                        lore: itemData.lore || [],
-                        enchanted: itemData.enchanted || [],
+                        stack: itemData.amount || itemData.dynamic_amount || 1,
                     };
+
+                    if(itemData.display_name) panel.items[slot].name = itemData.display_name;
+                    if(itemData.lore) panel.items[slot].lore = itemData.lore;
+                    if(itemData.enchantments) panel.items[slot].enchanted = itemData.enchantments;
+                    if(itemData.model_data) panel.items[slot].customdata = itemData.model_data;
                 }
             }
+            // Item Settings //
 
             convertedYAML.panels["ConvertedPanel"] = panel;
-
-
 
             let outputText = jsyaml.dump(convertedYAML, { noRefs: true, indent: 2 });
             document.getElementById("output-box").innerText = outputText;
