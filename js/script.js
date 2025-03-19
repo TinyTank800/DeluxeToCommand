@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 rows: Math.ceil(data.size / 9) || 1,
                 perm: "default",
                 empty: data.empty || "BLACK_STAINED_GLASS_PANE",
-                items: {}
+                item: {}
             };
 
             if (data.open_command) {
@@ -77,29 +77,29 @@ document.addEventListener("DOMContentLoaded", function () {
                 priorities.forEach((priority, index) => {
                     if (index === 0) {
                         // First priority should be the main item
-                        panel.items[slot] = {
+                        panel.item[slot] = {
                             material: items[slot][priority].material || "STONE",
                             stack: items[slot][priority].stack || 1,
                         };
 
-                        if (items[slot][priority].name) panel.items[slot].name = items[slot][priority].name;
-                        if (items[slot][priority].lore) panel.items[slot].lore = items[slot][priority].lore;
-                        if (items[slot][priority].enchanted) panel.items[slot].enchanted = items[slot][priority].enchanted;
-                        if (items[slot][priority].customdata) panel.items[slot].customdata = items[slot][priority].customdata;
-                        if (items[slot][priority].commands) panel.items[slot].commands = items[slot][priority].commands;
+                        if (items[slot][priority].name) panel.item[slot].name = items[slot][priority].name;
+                        if (items[slot][priority].lore) panel.item[slot].lore = items[slot][priority].lore;
+                        if (items[slot][priority].enchanted) panel.item[slot].enchanted = items[slot][priority].enchanted;
+                        if (items[slot][priority].customdata) panel.item[slot].customdata = items[slot][priority].customdata;
+                        if (items[slot][priority].commands) panel.item[slot].commands = items[slot][priority].commands;
                     } else {
                         // Higher priorities go into hasX
                         let hasIndex = index - 1; // First "has0", then "has1", etc.
-                        panel.items[slot][`has${hasIndex}`] = {
+                        panel.item[slot][`has${hasIndex}`] = {
                             material: items[slot][priority].material || "STONE",
                             stack: items[slot][priority].stack || 1,
                         };
 
-                        if (items[slot][priority].name) panel.items[slot][`has${hasIndex}`].name = items[slot][priority].name;
-                        if (items[slot][priority].lore) panel.items[slot][`has${hasIndex}`].lore = items[slot][priority].lore;
-                        if (items[slot][priority].enchanted) panel.items[slot][`has${hasIndex}`].enchanted = items[slot][priority].enchanted;
-                        if (items[slot][priority].customdata) panel.items[slot][`has${hasIndex}`].customdata = items[slot][priority].customdata;
-                        if (items[slot][priority].commands) panel.items[slot][`has${hasIndex}`].commands = items[slot][priority].commands;
+                        if (items[slot][priority].name) panel.item[slot][`has${hasIndex}`].name = items[slot][priority].name;
+                        if (items[slot][priority].lore) panel.item[slot][`has${hasIndex}`].lore = items[slot][priority].lore;
+                        if (items[slot][priority].enchanted) panel.item[slot][`has${hasIndex}`].enchanted = items[slot][priority].enchanted;
+                        if (items[slot][priority].customdata) panel.item[slot][`has${hasIndex}`].customdata = items[slot][priority].customdata;
+                        if (items[slot][priority].commands) panel.item[slot][`has${hasIndex}`].commands = items[slot][priority].commands;
 
                         // **Fixing Requirements Merging**
                         let mergedRequirements = [];
@@ -173,8 +173,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 allRequirementDetails.push(`Slot ${slot}: Requires '${input}' to equal '${output}'`);
             }
 
-            panel.items[slot][hasSection].value0 = condition.value0;
-            panel.items[slot][hasSection].compare0 = condition.compare0;
+            panel.item[slot][hasSection].value0 = condition.value0;
+            panel.item[slot][hasSection].compare0 = condition.compare0;
 
             // Debugging Output
             console.log(`Assigning ${hasSection} to slot ${slot}:`, condition);
