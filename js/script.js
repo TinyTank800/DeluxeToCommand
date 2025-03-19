@@ -1,21 +1,49 @@
-//////////////////// Main Conversion ////////////////////
-
 document.addEventListener("DOMContentLoaded", function () {
     function convertYAML() {
         let inputYAML = document.getElementById("yaml-input").value;
 
         try {
             let data = jsyaml.load(inputYAML);
-            let tempData = data;
             let convertedYAML = { "panels": {} };
-
+            let allRequirementDetails = [];
+            
+            // Check if the input has a 'menus' key for DeluxeMenus format
+            if (data.menus) {
+                // Multiple menus format
+                for (let menuName in data.menus) {
+                    let menuData = data.menus[menuName];
+                    let requirements = convertMenu(menuData, menuName, convertedYAML);
+                    allRequirementDetails = allRequirementDetails.concat(requirements);
+                }
+            } else {
+                // Single menu format
+                let requirements = convertMenu(data, "ConvertedPanel", convertedYAML);
+                allRequirementDetails = allRequirementDetails.concat(requirements);
+            }
+            
+            if (allRequirementDetails.length > 0) {
+                showRequirementWarning(allRequirementDetails);
+            }
+            
+            let outputText = jsyaml.dump(convertedYAML, { noRefs: true, indent: 2 });
+            document.getElementById("output-box").innerText = outputText;
+            document.getElementById("output-container").style.display = "block";
+        } catch (error) {
+            alert("Error parsing YAML: " + error);
+        }
+    }
+    
+    function convertMenu(data, panelName, convertedYAML) {
+        let allRequirementDetails = [];
+        
+        try {
             // Panel Settings //
             let panel = {
-                title: data.menu_title || "&8Converted Menu",
+                title: data.menu_title || `&8${panelName}`,
                 rows: Math.ceil(data.size / 9) || 1,
                 perm: "default",
                 empty: data.empty || "BLACK_STAINED_GLASS_PANE",
-                item: {}
+                item: {}  // Using 'item' (singular)
             };
 
             if (data.open_command) {
@@ -36,9 +64,9 @@ document.addEventListener("DOMContentLoaded", function () {
             let items = {}
 
             // Item Settings //
-            if (tempData.items) {
-                for (let itemKey in tempData.items) {
-                    let itemData = tempData.items[itemKey];
+            if (data.items) {
+                for (let itemKey in data.items) {
+                    let itemData = data.items[itemKey];
                     if (!("slot" in itemData)) continue;
 
                     let slot = itemData.slot;
@@ -77,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 priorities.forEach((priority, index) => {
                     if (index === 0) {
                         // First priority should be the main item
-                        panel.item[slot] = {
+                        panel.item[slot] = {  // Using 'item' (singular) instead of 'items'
                             material: items[slot][priority].material || "STONE",
                             stack: items[slot][priority].stack || 1,
                         };
@@ -90,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     } else {
                         // Higher priorities go into hasX
                         let hasIndex = index - 1; // First "has0", then "has1", etc.
-                        panel.item[slot][`has${hasIndex}`] = {
+                        panel.item[slot][`has${hasIndex}`] = {  // Using 'item' (singular) 
                             material: items[slot][priority].material || "STONE",
                             stack: items[slot][priority].stack || 1,
                         };
@@ -119,17 +147,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             }
 
-            convertedYAML.panels["ConvertedPanel"] = panel;
-
-            if (allRequirementDetails.length > 0) {
-                showRequirementWarning(allRequirementDetails);
-            }
-
-            let outputText = jsyaml.dump(convertedYAML, { noRefs: true, indent: 2 });
-            document.getElementById("output-box").innerText = outputText;
-            document.getElementById("output-container").style.display = "block";
+            convertedYAML.panels[panelName] = panel;
+            
+            return allRequirementDetails;
         } catch (error) {
-            alert("Error parsing YAML: " + error);
+            console.error(`Error converting menu ${panelName}:`, error);
+            alert(`Error converting menu ${panelName}: ${error}`);
+            return [];
         }
     }
 
@@ -355,4 +379,4 @@ document.getElementById("copy-button").addEventListener("click", function () {
     });
 });
 
-//////////////////// Copy Button ////////////////////
+//////////////////// Copy Button ///////////////////
