@@ -1,49 +1,72 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // Element References
+    const themeToggleButton = document.getElementById('theme-toggle');
+    const helpToggleButton = document.getElementById('help-toggle-button');
+    const helpSection = document.getElementById('help-section');
+    const convertButton = document.getElementById("convert-button");
+    const copyButton = document.getElementById("copy-button");
+    const downloadButton = document.getElementById("download-button");
+    const clearButton = document.getElementById("clear-button");
+    const dropArea = document.getElementById("drop-area");
+    const fileInput = document.getElementById("file-upload");
+    const yamlInput = document.getElementById("yaml-input");
+    const outputContainer = document.getElementById("output-container");
+    const outputBox = document.getElementById("output-box");
+    const requirementWarning = document.getElementById("requirement-warning");
+    const requirementList = document.getElementById("requirement-list");
+    const bodyElement = document.body;
+    const supportersListDiv = document.getElementById('supporters-list');
+
+    // Conversion Logic
     function convertYAML() {
-        let inputYAML = document.getElementById("yaml-input").value;
+        if (!yamlInput || !outputBox || !outputContainer || !requirementWarning || !requirementList) {
+            console.error("Missing elements required for conversion.");
+            alert("Error: UI elements missing. Conversion cannot proceed.");
+            return;
+        }
+        let inputYAML = yamlInput.value;
 
         try {
             let data = jsyaml.load(inputYAML);
             let convertedYAML = { "panels": {} };
             let allRequirementDetails = [];
-            
-            // Check if the input has a 'menus' key for DeluxeMenus format
+
+            // Check if the input has a 'menus' key (multiple menus) or not (single menu)
             if (data.menus) {
-                // Multiple menus format
                 for (let menuName in data.menus) {
                     let menuData = data.menus[menuName];
                     let requirements = convertMenu(menuData, menuName, convertedYAML);
                     allRequirementDetails = allRequirementDetails.concat(requirements);
                 }
             } else {
-                // Single menu format
                 let requirements = convertMenu(data, "ConvertedPanel", convertedYAML);
                 allRequirementDetails = allRequirementDetails.concat(requirements);
             }
-            
+
             if (allRequirementDetails.length > 0) {
                 showRequirementWarning(allRequirementDetails);
             }
-            
+
             let outputText = jsyaml.dump(convertedYAML, { noRefs: true, indent: 2 });
-            document.getElementById("output-box").innerText = outputText;
-            document.getElementById("output-container").style.display = "block";
+            outputBox.innerText = outputText;
+            outputContainer.style.display = "block";
         } catch (error) {
             alert("Error parsing YAML: " + error);
         }
     }
-    
+
+    // Converts a single DeluxeMenus menu structure to CommandPanels format
     function convertMenu(data, panelName, convertedYAML) {
         let allRequirementDetails = [];
-        
+
         try {
-            // Panel Settings //
+            // --- Panel Settings --- 
             let panel = {
                 title: data.menu_title || `&8${panelName}`,
                 rows: Math.ceil(data.size / 9) || 1,
                 perm: "default",
                 empty: data.empty || "BLACK_STAINED_GLASS_PANE",
-                item: {}  // Using 'item' (singular)
+                item: {}
             };
 
             if (data.open_command) {
@@ -57,13 +80,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             if (data.update_interval) panel["refresh-delay"] = data.update_interval * 20;
 
-            // Panel Settings //
-
-            let allRequirementDetails = [];
-
+            // --- Item Settings --- 
             let items = {}
-
-            // Item Settings //
             if (data.items) {
                 for (let itemKey in data.items) {
                     let itemData = data.items[itemKey];
@@ -76,6 +94,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         items[slot] = {}
                     }
 
+                    // Store item data indexed by slot and priority
                     items[slot][priority] = {
                         material: itemData.material || "STONE",
                         stack: itemData.amount || itemData.dynamic_amount || 1,
@@ -89,6 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         items[slot][priority].commands = checkTags(itemData.click_commands);
                     }
 
+                    // Store requirements separately for later processing
                     if (itemData.view_requirement) {
                         items[slot][priority].view_requirements = itemData.view_requirement.requirements;
                     }
@@ -98,57 +118,52 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
 
-            // Loop through all slots in items
+            // Process items per slot, handling priorities for 'hasX' sections
             for (let slot in items) {
                 let priorities = Object.keys(items[slot]).map(Number).sort((a, b) => b - a);
 
                 priorities.forEach((priority, index) => {
-                    if (index === 0) {
-                        // First priority should be the main item
-                        panel.item[slot] = {  // Using 'item' (singular) instead of 'items'
-                            material: items[slot][priority].material || "STONE",
-                            stack: items[slot][priority].stack || 1,
-                        };
+                    let targetItem;
+                    let targetSection = index === 0 ? null : `has${index - 1}`;
 
-                        if (items[slot][priority].name) panel.item[slot].name = items[slot][priority].name;
-                        if (items[slot][priority].lore) panel.item[slot].lore = items[slot][priority].lore;
-                        if (items[slot][priority].enchanted) panel.item[slot].enchanted = items[slot][priority].enchanted;
-                        if (items[slot][priority].customdata) panel.item[slot].customdata = items[slot][priority].customdata;
-                        if (items[slot][priority].commands) panel.item[slot].commands = items[slot][priority].commands;
+                    if (targetSection) {
+                        // Create hasX section if it doesn't exist
+                        if (!panel.item[slot]) panel.item[slot] = {}; // Ensure base slot exists
+                        panel.item[slot][targetSection] = {};
+                        targetItem = panel.item[slot][targetSection];
                     } else {
-                        // Higher priorities go into hasX
-                        let hasIndex = index - 1; // First "has0", then "has1", etc.
-                        panel.item[slot][`has${hasIndex}`] = {  // Using 'item' (singular) 
-                            material: items[slot][priority].material || "STONE",
-                            stack: items[slot][priority].stack || 1,
-                        };
+                        // Assign to the main item slot
+                        panel.item[slot] = {};
+                        targetItem = panel.item[slot];
+                    }
 
-                        if (items[slot][priority].name) panel.item[slot][`has${hasIndex}`].name = items[slot][priority].name;
-                        if (items[slot][priority].lore) panel.item[slot][`has${hasIndex}`].lore = items[slot][priority].lore;
-                        if (items[slot][priority].enchanted) panel.item[slot][`has${hasIndex}`].enchanted = items[slot][priority].enchanted;
-                        if (items[slot][priority].customdata) panel.item[slot][`has${hasIndex}`].customdata = items[slot][priority].customdata;
-                        if (items[slot][priority].commands) panel.item[slot][`has${hasIndex}`].commands = items[slot][priority].commands;
+                    // Assign common properties
+                    targetItem.material = items[slot][priority].material || "STONE";
+                    targetItem.stack = items[slot][priority].stack || 1;
+                    if (items[slot][priority].name) targetItem.name = items[slot][priority].name;
+                    if (items[slot][priority].lore) targetItem.lore = items[slot][priority].lore;
+                    if (items[slot][priority].enchanted) targetItem.enchanted = items[slot][priority].enchanted;
+                    if (items[slot][priority].customdata) targetItem.customdata = items[slot][priority].customdata;
+                    if (items[slot][priority].commands) targetItem.commands = items[slot][priority].commands;
 
-                        // **Fixing Requirements Merging**
+                    // Process requirements only for hasX sections
+                    if (targetSection) {
                         let mergedRequirements = [];
-
                         if (items[slot][priority].view_requirements) {
                             mergedRequirements = mergedRequirements.concat(items[slot][priority].view_requirements);
                         }
                         if (items[slot][priority].click_requirements) {
                             mergedRequirements = mergedRequirements.concat(items[slot][priority].click_requirements);
                         }
-
-                        // If there are any requirements, process them
                         if (mergedRequirements.length > 0) {
-                            convertRequirements(mergedRequirements, panel, slot, `has${hasIndex}`, allRequirementDetails);
+                            convertRequirements(mergedRequirements, panel, slot, targetSection, allRequirementDetails);
                         }
                     }
                 });
             }
 
             convertedYAML.panels[panelName] = panel;
-            
+
             return allRequirementDetails;
         } catch (error) {
             console.error(`Error converting menu ${panelName}:`, error);
@@ -157,23 +172,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-
-    //////////////////// Main Conversion ////////////////////
-
-
-
-    //////////////////// Requirement Conversion ////////////////////
-
+    // Converts DeluxeMenus requirements to CommandPanels hasX conditions
     function convertRequirements(requirements, panel, slot, hasSection, allRequirementDetails) {
-        console.log("Starting requirement conversion.")
-
         requirements.forEach(requirement => {
-            var firstRequirement = Object.values(requirement)[0] //Have to use this as name of requirement is first then the type details.
-
+            // Requirement name is the key, details are the value
+            var firstRequirement = Object.values(requirement)[0];
             if (!firstRequirement || !firstRequirement.type) return;
 
             let condition = {};
 
+            // Basic requirement type conversions
             if (firstRequirement.type.includes("has permission")) {
                 let permission = firstRequirement.permission;
                 let not = firstRequirement.type.includes("!");
@@ -197,48 +205,29 @@ document.addEventListener("DOMContentLoaded", function () {
                 allRequirementDetails.push(`Slot ${slot}: Requires '${input}' to equal '${output}'`);
             }
 
+            // Assign converted conditions to the target hasX section
             panel.item[slot][hasSection].value0 = condition.value0;
             panel.item[slot][hasSection].compare0 = condition.compare0;
-
-            // Debugging Output
-            console.log(`Assigning ${hasSection} to slot ${slot}:`, condition);
         });
     }
 
-    //////////////////// Requirement Conversion ////////////////////
-
-
-
-    //////////////////// Show Warning ////////////////////
-
+    // Displays requirement conversion warnings
     function showRequirementWarning(requirementDetails) {
-        let warningBox = document.getElementById("requirement-warning");
-        let requirementList = document.getElementById("requirement-list");
-
-        // Clear previous messages
-        requirementList.innerHTML = "";
-
-        // Add each requirement as a list item
+        if (!requirementWarning || !requirementList) return;
+        requirementList.innerHTML = ""; // Clear previous
         requirementDetails.forEach(detail => {
             let listItem = document.createElement("li");
             listItem.textContent = detail;
             requirementList.appendChild(listItem);
         });
-
-        // Make the warning box visible
-        warningBox.style.display = "block";
+        requirementWarning.style.display = "block"; // Make visible
     }
 
-    //////////////////// Show Warning ////////////////////
-
-
-
-    //////////////////// Tag Conversion ////////////////////
-
+    // Converts DeluxeMenus command/placeholder tags to CommandPanels equivalents
     function checkTags(commands) {
         var newCommands = commands.map(command => {
             return command
-                //command tags
+                // Command tags
                 .replace("[player]", "")
                 .replace("[console]", "console=")
                 .replace("[commandevent]", "sudo=")
@@ -252,131 +241,249 @@ document.addEventListener("DOMContentLoaded", function () {
                 .replace("[takemoney]", "paywall=")
                 .replace("[takeexp]", "xp-paywall=")
                 .replace("[chat]", "send=")
-                //Placeholders
-                .replace("%player_name%", "%cp-player-name%");
+                // Placeholders
+                .replace("%player%", "%cp-player-name%")
+                .replace("%player_name%", "%cp-player-name%")
+                .replace("%player_displayname%", "%cp-player-display-name%")
+                .replace("%player_uuid%", "%cp-player-uuid%")
+                .replace("%world%", "%cp-player-world%")
+                .replace("%player_x%", "%cp-player-loc-x%")
+                .replace("%player_y%", "%cp-player-loc-y%")
+                .replace("%player_z%", "%cp-player-loc-z%")
+                .replace("%server_name%", "%cp-server-name%")
+                .replace("%online%", "%cp-server-online%")
+                .replace("%max_players%", "%cp-server-max-players%")
+                .replace("%tps%", "%cp-server-tps%")
+                .replace("%motd%", "%cp-server-motd%")
+                .replace("%player_ping%", "%cp-player-ping%")
+                .replace("%player_level%", "%cp-player-level%")
+                .replace("%player_exp%", "%cp-player-exp%")
+                .replace("%player_saturation%", "%cp-player-saturation%")
+                .replace("%player_hunger%", "%cp-player-hunger%")
+                .replace("%player_gamemode%", "%cp-player-gamemode%")
+                .replace("%player_health%", "%cp-player-health%")
+                .replace("%player_max_health%", "%cp-player-max-health%")
+                .replace("%vault_eco_balance%", "%cp-player-balance%")
+                .replace("%vault_eco_balance_formatted%", "%cp-player-balance-formatted%")
+                .replace("%time%", "%cp-server-time%");
         });
-
         return newCommands;
     }
 
-    //////////////////// Tag Conversion ////////////////////
+    // Supporter Loading Logic
+    async function loadSupporters() {
+        if (!supportersListDiv) {
+            console.error("Supporters list element (#supporters-list) not found.");
+            return;
+        }
+        supportersListDiv.innerHTML = "<p>Loading supporters...</p>";
 
+        try {
+            const response = await fetch("members.json");
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const supportersData = await response.json();
+            supportersListDiv.innerHTML = ""; // Clear loading message
 
-
-    //////////////////// Themes ////////////////////
-
-    function toggleTheme() {
-        let currentTheme = document.body.getAttribute("data-theme");
-        let newTheme = currentTheme === "dark" ? "light" : "dark";
-
-        document.body.setAttribute("data-theme", newTheme);
-        localStorage.setItem("theme", newTheme);
-    }
-
-    function applyStoredTheme() {
-        let savedTheme = localStorage.getItem("theme") || "dark";
-        document.body.setAttribute("data-theme", savedTheme);
-    }
-
-    applyStoredTheme();
-
-    // Attach event listeners
-    document.getElementById("convert-button").addEventListener("click", convertYAML);
-    document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
-
-    //////////////////// Themes ////////////////////
-
-
-
-    //////////////////// Help Tooltip ////////////////////
-
-    // Get references to elements
-    const helpIcon = document.getElementById("help-icon");
-    const helpSection = document.getElementById("help-section");
-
-    // Toggle Help Section on Click
-    helpIcon.addEventListener("click", function () {
-        helpSection.classList.toggle("open");
-    });
-
-    //////////////////// Help Tooltip ////////////////////
-
-
-
-    //////////////////// Clear button ////////////////////
-
-    document.getElementById("clear-button").addEventListener("click", () => {
-        document.getElementById("yaml-input").value = "";
-        document.getElementById("output-box").innerText = "";
-        document.getElementById("output-container").style.display = "none";
-    });
-
-    //////////////////// Clear button ////////////////////
-
-
-
-    //////////////////// Drag and drop upload ////////////////////
-
-    const dropArea = document.getElementById("drop-area");
-    const fileInput = document.getElementById("file-upload");
-
-    dropArea.addEventListener("dragover", (event) => {
-        event.preventDefault();
-        dropArea.style.background = "rgba(255, 255, 255, 0.1)";
-    });
-
-    dropArea.addEventListener("dragleave", () => {
-        dropArea.style.background = "transparent";
-    });
-
-    dropArea.addEventListener("drop", (event) => {
-        event.preventDefault();
-        dropArea.style.background = "transparent";
-
-        let file = event.dataTransfer.files[0];
-        handleFileUpload(file);
-    });
-
-    fileInput.addEventListener("change", () => {
-        let file = fileInput.files[0];
-        handleFileUpload(file);
-    });
-
-    function handleFileUpload(file) {
-        if (file && file.name.endsWith(".yml") || file.name.endsWith(".yaml") || file.name.endsWith(".txt")) {
-            let reader = new FileReader();
-            reader.onload = function (event) {
-                document.getElementById("yaml-input").value = event.target.result;
-            };
-            reader.readAsText(file);
-        } else {
-            alert("Please upload a valid YAML file.");
+            if (Array.isArray(supportersData) && supportersData.length > 0) {
+                 supportersData.forEach(supporter => {
+                    const supporterElement = document.createElement('div');
+                    supporterElement.classList.add('supporter-name');
+                    supporterElement.textContent = supporter.name;
+                    if (supporter.tier !== undefined) {
+                        supporterElement.setAttribute('data-tier', supporter.tier);
+                    }
+                    supportersListDiv.appendChild(supporterElement);
+                 });
+            } else {
+                supportersListDiv.innerHTML = "<p>Become the first supporter!</p>";
+            }
+        } catch (error) {
+            console.error("Error loading or processing members.json:", error);
+            supportersListDiv.innerHTML = "<p>Error loading supporters.</p>";
         }
     }
 
-    //////////////////// Drag and drop upload ////////////////////
-});
+    // Theme Toggling Logic
+    const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
 
-
-
-//////////////////// Copy Button ////////////////////
-
-document.getElementById("copy-button").addEventListener("click", function () {
-    let outputBox = document.getElementById("output-box");
-
-    if (!outputBox) {
-        alert("Output box not found!");
-        return;
+    function applyTheme(theme) {
+        if (!bodyElement) return;
+        bodyElement.setAttribute('data-theme', theme);
+        if (themeToggleButton) {
+            themeToggleButton.setAttribute('aria-checked', theme === 'light');
+        }
+        localStorage.setItem('theme', theme);
     }
 
-    let textToCopy = outputBox.innerText; // Use innerText to preserve formatting
+    function toggleTheme() {
+        if (!bodyElement) return;
+        const currentTheme = bodyElement.getAttribute('data-theme') || (prefersDarkScheme.matches ? 'dark' : 'light');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        applyTheme(newTheme);
+    }
 
-    navigator.clipboard.writeText(textToCopy).then(() => {
-        alert("Copied to clipboard!");
-    }).catch(err => {
-        console.error("Failed to copy text:", err);
-        alert("Copy failed. Please try again.");
-    });
+    function initializeTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        } else {
+            applyTheme(prefersDarkScheme.matches ? 'dark' : 'light');
+        }
+    }
+
+    // Help Section Toggle Logic
+    function toggleHelpSection() {
+        if (helpSection && helpToggleButton) {
+            const isOpen = helpSection.classList.toggle('open');
+            helpToggleButton.setAttribute('aria-expanded', isOpen);
+        }
+    }
+
+    // File Handling Logic
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    function highlightDropArea() {
+        if (dropArea) dropArea.classList.add('dragover');
+    }
+
+    function unhighlightDropArea() {
+        if (dropArea) dropArea.classList.remove('dragover');
+    }
+
+    function handleDrop(e) {
+        unhighlightDropArea();
+        let dt = e.dataTransfer;
+        let files = dt.files;
+        if (files.length > 0) {
+            handleFileUpload(files[0]);
+        }
+    }
+
+    function handleFileSelect(e) {
+        if (e.target.files.length > 0) {
+            handleFileUpload(e.target.files[0]);
+        }
+    }
+
+    function handleFileUpload(file) {
+        if (file && (file.name.endsWith('.yml') || file.name.endsWith('.yaml'))) {
+            if (yamlInput) {
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    yamlInput.value = e.target.result;
+                };
+                reader.onerror = function (e) {
+                    alert("Error reading file: " + e.target.error);
+                };
+                reader.readAsText(file);
+            } else {
+                console.error("YAML input element not found for file upload.");
+                alert("Error: Cannot load file content.");
+            }
+        } else {
+            alert("Please upload a valid YAML file (.yml or .yaml).");
+        }
+    }
+
+    // Event Listener Setup
+    if (convertButton) {
+        convertButton.addEventListener("click", convertYAML);
+    } else {
+        console.error("Convert button not found!");
+    }
+
+    if (copyButton && outputBox) {
+        copyButton.addEventListener("click", function () {
+            navigator.clipboard.writeText(outputBox.innerText).then(() => {
+                alert("Copied to clipboard!");
+            }, () => {
+                alert("Failed to copy!");
+            });
+        });
+    } else {
+        if (!copyButton) console.error("Copy button not found!");
+        if (!outputBox) console.error("Output box not found!");
+    }
+
+    if (downloadButton && outputBox) {
+        downloadButton.addEventListener("click", function () {
+            let outputText = outputBox.innerText;
+            let blob = new Blob([outputText], { type: "text/yaml" });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement("a");
+            a.href = url;
+            let panelName = "converted_panel";
+            try {
+                let parsedOutput = jsyaml.load(outputText);
+                if (parsedOutput && parsedOutput.panels) {
+                    panelName = Object.keys(parsedOutput.panels)[0] || panelName;
+                }
+            } catch (e) {
+                console.error("Could not parse output YAML for filename:", e);
+            }
+            a.download = `${panelName}.yml`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    } else {
+        if (!downloadButton) console.error("Download button not found!");
+        if (!outputBox) console.error("Output box not found!");
+    }
+
+    if (clearButton && yamlInput && outputContainer && requirementWarning && requirementList) {
+        clearButton.addEventListener("click", function () {
+            yamlInput.value = "";
+            outputContainer.style.display = "none";
+            requirementWarning.style.display = "none";
+            requirementList.innerHTML = "";
+            if (fileInput) fileInput.value = null;
+        });
+    } else {
+        if (!clearButton) console.error("Clear button not found!");
+        if (!yamlInput) console.error("YAML input not found!");
+        if (!outputContainer) console.error("Output container not found!");
+        if (!requirementWarning) console.error("Requirement warning not found!");
+        if (!requirementList) console.error("Requirement list not found!");
+    }
+
+    if (themeToggleButton) {
+        themeToggleButton.addEventListener('click', toggleTheme);
+    } else {
+        console.error("Theme toggle button not found!");
+    }
+
+    if (helpToggleButton && helpSection) {
+        helpToggleButton.addEventListener('click', toggleHelpSection);
+    } else {
+        if (!helpToggleButton) console.error("Help toggle button not found!");
+        if (!helpSection) console.error("Help section container not found!");
+    }
+
+    if (dropArea && fileInput) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlightDropArea, false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlightDropArea, false);
+        });
+        dropArea.addEventListener('drop', handleDrop, false);
+        fileInput.addEventListener('change', handleFileSelect, false);
+    } else {
+        if (!dropArea) console.error("Drop area not found!");
+        if (!fileInput) console.error("File input not found!");
+    }
+
+    // Initial Setup Calls
+    initializeTheme();
+    loadSupporters();
 });
-
-//////////////////// Copy Button ///////////////////
