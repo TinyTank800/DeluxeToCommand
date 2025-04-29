@@ -46,7 +46,7 @@ The converter **tries to match functions as closely as possible** to the Command
 
 ## 📂 How to Access the Converter
 ### **🚀 Live Website**
-🌍 **[Click Here to Use the Converter](https://tinytank800.github.io/DeluxeToCommand/)**  
+🌍 **[Click Here to Use the Converter](https://deluxetocommand.jemsire.com/)**  
 
 ### **Or, Run It Locally**
 1. **Download the project files**  
@@ -59,15 +59,6 @@ The converter **tries to match functions as closely as possible** to the Command
 *Found a bug or missing feature?* Let us know!  
 🐙 **GitHub Issues**: [Main Repo](https://github.com/TinyTank800/DeluxeToCommand/issues)  
 💬 **Discord**: [Join RoH Community](https://discord.gg/eUWBWh7)  
-
----
-
-## ❤️ Sponsors
-**Become a Sponsor:**  
-[![Sponsor](https://img.shields.io/badge/Sponsor%20Me-GitHub-red?style=for-the-badge&logo=github)](https://github.com/sponsors/TinyTank800)  
-**Current Sponsors:**  
-![GitHub Sponsors](https://img.shields.io/github/sponsors/TinyTank800)  
-<!-- sponsors --><!-- sponsors -->
 
 ---
 
